@@ -1,11 +1,11 @@
-const CACHE_NAME = 'gps-alarme-v3';
+const CACHE_NAME = 'gps-alarme-v4';
 const ASSETS = [
-  '/Gps-Local/',
-  '/Gps-Local/index.html',
-  '/Gps-Local/manifest.json',
-  '/Gps-Local/audio/alarme.mp3',
-  '/Gps-Local/icons/icon-192.png',
-  '/Gps-Local/icons/icon-512.png',
+  './',
+  'index.html',
+  'manifest.json',
+  'audio/alarme.mp3',
+  'icons/icon-192.png',
+  'icons/icon-512.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css',

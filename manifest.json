@@ -1,23 +1,23 @@
+
 {
   "name": "GPS-Alarme",
   "short_name": "GPS Alarme",
   "description": "Alarme que desperta você ao chegar próximo ao seu destino",
-  "start_url": "/Gps-Local/",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#fff9c4",
   "theme_color": "#ff3d00",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
-
