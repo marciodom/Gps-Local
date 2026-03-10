@@ -88,6 +88,27 @@
         const alarmAudio = new Audio('audio/alarme.mp3');
         alarmAudio.loop = true;
 
+        // --- FUNÇÃO INSERIDA CONFORME SOLICITADO ---
+        function activateGPS() {
+            document.getElementById('alarmStatus').textContent = "Buscando sinal...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    p => initApp(p.coords.latitude, p.coords.longitude),
+                    err => {
+                        console.error("Erro GPS:", err);
+                        let msg = "Erro: ";
+                        if(err.code == 1) msg += "Permissão negada. Ative o GPS.";
+                        else if(err.code == 2) msg += "Sinal indisponível.";
+                        else msg += "Tempo esgotado.";
+                        document.getElementById('alarmStatus').innerHTML = `<span style="color:red">${msg}</span>`;
+                    },
+                    { enableHighAccuracy: true, timeout: 15000 }
+                );
+            } else {
+                document.getElementById('alarmStatus').textContent = "GPS não suportado.";
+            }
+        }
+
         // PWA Install
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -107,6 +128,7 @@
         function initApp(lat, lng) {
             userCoords = { lat, lng };
             document.getElementById('statusIndicator').style.background = '#00ff40';
+            document.getElementById('alarmStatus').textContent = "GPS Ativo";
             map = L.map('map', { zoomControl: false }).setView([lat, lng], 15);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
             userMarker = L.marker([lat, lng]).addTo(map);
@@ -162,16 +184,14 @@
             document.getElementById('stopAlarm').classList.add('hidden');
         };
 
-        navigator.geolocation.getCurrentPosition(
-    p => initApp(p.coords.latitude, p.coords.longitude),
-    err => console.error("Erro GPS:", err)
-);
+        // INICIALIZAÇÃO
+        window.onload = activateGPS;
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-        .then(() => console.log("SW registrado"))
-        .catch(e => console.log("Erro SW:", e));
-}
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log("SW registrado"))
+                .catch(e => console.log("Erro SW:", e));
+        }
     </script>
 </body>
 </html>
