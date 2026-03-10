@@ -36,7 +36,6 @@
             font-size: 0.8em; font-weight: bold; margin-top: 10px; cursor: pointer; display: none;
         }
 
-        /* Input com ícone de local (taxinha) */
         .input-container { padding: 20px 20px 10px 20px; width: 100%; }
         .search-box { position: relative; display: flex; align-items: center; background: white; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .search-box span { padding-left: 15px; font-size: 1.2em; }
@@ -57,7 +56,6 @@
 
         #alarmStatus { font-weight: bold; color: #333; }
 
-        /* Rodapé */
         footer { background: #333; color: white; padding: 15px; text-align: center; font-size: 0.8em; margin-top: auto; }
         footer p { margin-bottom: 5px; }
         .footer-brand { color: #ff3d00; font-weight: bold; }
@@ -133,6 +131,9 @@
                 map = L.map('map', { zoomControl: false }).setView([lat, lng], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
                 userMarker = L.marker([lat, lng]).addTo(map);
+                
+                // Tenta recuperar dados salvos após iniciar o mapa
+                loadSavedData();
             }
             
             navigator.geolocation.watchPosition(updatePos, null, { enableHighAccuracy: true });
@@ -150,27 +151,50 @@
                 const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${e.target.value}&countrycodes=br&limit=5`);
                 const data = await res.json();
                 const sug = document.getElementById('suggestions');
-                sug.innerHTML = data.map(d => `<div class="suggestion-item" onclick="setDest(${d.lat}, ${d.lon}, '${d.display_name}')">${d.display_name}</div>`).join('');
+                sug.innerHTML = data.map(d => `<div class="suggestion-item" onclick="setDest(${d.lat}, ${d.lon}, '${d.display_name.replace(/'/g, "\\'")}')">${d.display_name}</div>`).join('');
                 sug.style.display = 'block';
             } catch (err) { console.log(err); }
         };
 
         window.setDest = (lat, lon, name) => {
-            destination = { lat, lng: lon };
+            destination = { lat, lng: lon, name: name };
             document.getElementById('suggestions').style.display = 'none';
             document.getElementById('activateAlarm').disabled = false;
             document.getElementById('destinationInput').value = name;
 
+            // Salva no LocalStorage
+            localStorage.setItem('savedDest', JSON.stringify(destination));
+
             if (routingControl) map.removeControl(routingControl);
+            
             routingControl = L.Routing.control({
                 waypoints: [L.latLng(userCoords.lat, userCoords.lng), L.latLng(lat, lon)],
                 router: L.Routing.osrmv1({ serviceUrl: `https://router.project-osrm.org/route/v1` }),
                 createMarker: () => null,
-                lineOptions: { styles: [{ color: '#4a90e2', weight: 6 }] }
+                lineOptions: { styles: [{ color: '#4a90e2', weight: 6 }] },
+                addWaypoints: false 
             }).addTo(map);
         };
 
+        function loadSavedData() {
+            const saved = localStorage.getItem('savedDest');
+            const savedActive = localStorage.getItem('alarmActive');
+            
+            if (saved) {
+                const data = JSON.parse(saved);
+                // Pequeno delay para garantir que as coordenadas do usuário carregaram
+                setTimeout(() => {
+                    if(userCoords) setDest(data.lat, data.lng, data.name);
+                }, 1000);
+            }
+
+            if (savedActive === 'true') {
+                setTimeout(() => document.getElementById('activateAlarm').click(), 1500);
+            }
+        }
+
         function checkDist() {
+            if(!destination || !userCoords) return;
             const d = map.distance([userCoords.lat, userCoords.lng], [destination.lat, destination.lng]);
             if (d <= 500) {
                 alarmAudio.play().catch(e => console.log("Erro áudio"));
@@ -182,20 +206,28 @@
 
         document.getElementById('activateAlarm').onclick = () => {
             alarmActive = true;
+            localStorage.setItem('alarmActive', 'true');
             document.getElementById('activateAlarm').classList.add('hidden');
             document.getElementById('stopAlarm').classList.remove('hidden');
-            // Pré-carrega o áudio para evitar bloqueio mobile
             alarmAudio.play().then(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; });
         };
 
         document.getElementById('stopAlarm').onclick = () => {
             alarmActive = false;
+            // Limpa o Local Storage ao desativar
+            localStorage.removeItem('savedDest');
+            localStorage.removeItem('alarmActive');
+            
             alarmAudio.pause();
+            alarmAudio.currentTime = 0;
             document.getElementById('activateAlarm').classList.remove('hidden');
             document.getElementById('stopAlarm').classList.add('hidden');
+            document.getElementById('destinationInput').value = "";
+            document.getElementById('activateAlarm').disabled = true;
+            if (routingControl) map.removeControl(routingControl);
+            document.getElementById('alarmStatus').textContent = "GPS Conectado";
         };
 
-        // PWA Install Logic
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
