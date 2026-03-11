@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gps-alarme-v5';
+const CACHE_NAME = 'gps-alarme-v6';
 const ASSETS = [
   './',
   'index.html',

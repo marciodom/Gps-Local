@@ -15,50 +15,69 @@
     <style>
         :root {
             --primary: #4a90e2;
-            --success: #00ff40; 
+            --success: #2ecc71; 
             --danger: #e74c3c;
             --bg-sky: #b3e5fc;  
             --header-yellow: #fff9c4; 
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-sky); min-height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-sky); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
         .container { max-width: 500px; margin: 0 auto; width: 100%; flex: 1; display: flex; flex-direction: column; }
 
-        .top-bar { background-color: var(--header-yellow); padding: 10px 15px; display: flex; flex-direction: column; align-items: center; border-bottom: 2px solid #ddd; }
-        .header-main { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .app-logo { width: 45px; height: 45px; object-fit: contain; }
-        .app-title-box { background: white; border: 1px solid #333; border-radius: 8px; padding: 2px 15px; }
-        .app-title-box h1 { color: #ff3d00; font-size: 1.4em; font-weight: 900; text-transform: uppercase; }
-
-        #installBtn {
-            background: #ff3d00; color: white; border: none; padding: 8px 15px; border-radius: 20px;
-            font-size: 0.8em; font-weight: bold; margin-top: 10px; cursor: pointer; display: none;
-        }
-
-        .input-container { padding: 20px 20px 10px 20px; width: 100%; }
-        .search-box { position: relative; display: flex; align-items: center; background: white; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .search-box span { padding-left: 15px; font-size: 1.2em; }
-        input[type="text"] { width: 100%; padding: 15px; border-radius: 15px; border: none; font-size: 1em; outline: none; }
+        /* Cabeçalho Centralizado */
+        .top-bar { background-color: var(--header-yellow); padding: 15px; display: flex; flex-direction: column; align-items: center; position: relative; }
+        .header-main { display: flex; justify-content: center; align-items: center; width: 100%; position: relative; }
         
-        .suggestions { background: white; position: absolute; top: 100%; left: 0; width: 100%; z-index: 1000; max-height: 150px; overflow-y: auto; border-radius: 0 0 15px 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .suggestion-item { padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.9em; }
+        .app-logo { width: 40px; height: 40px; object-fit: contain; position: absolute; left: 0; }
+        
+        .app-title-box { background: white; border: 2px solid #333; border-radius: 8px; padding: 6px 20px; text-align: center; min-width: 200px; }
+        .app-title-box h1 { color: #ff3d00; font-size: 1.4em; font-weight: 900; text-transform: uppercase; line-height: 1; letter-spacing: 1px; }
+        
+        .gps-status-box { position: absolute; right: 0; }
+        #statusIndicator { width: 18px; height: 18px; border-radius: 50%; background: #333; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.2); }
 
-        .map-wrapper { margin: 10px 20px; border-radius: 15px; overflow: hidden; border: 3px solid white; height: 300px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .app-subtitle { color: #d32f2f; font-size: 0.85em; font-weight: bold; margin-top: 12px; text-align: center; max-width: 90%; }
+
+        /* Input e Card */
+        .input-container { padding: 15px 20px 5px 20px; width: 100%; position: relative; }
+        .search-box { position: relative; display: flex; align-items: center; background: white; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .pin-icon { padding-left: 15px; font-size: 1.5em; color: #e74c3c; }
+        input[type="text"] { width: 100%; padding: 15px 15px 15px 10px; border: none; border-radius: 15px; font-size: 1.1em; outline: none; font-style: italic; color: #333; }
+        
+        .selected-dest-card { 
+            background: white; border: 2px solid #4a90e2; border-radius: 10px; padding: 12px; margin-top: 5px;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .selected-dest-card span { flex: 1; font-size: 0.9em; font-weight: bold; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 10px; }
+        .clear-dest { background: #e74c3c; color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-weight: bold; font-size: 1.2em; line-height: 1; }
+
+        .suggestions { 
+            background: white; position: absolute; top: 100%; left: 20px; right: 20px; z-index: 5000; 
+            max-height: 250px; overflow-y: auto; border-radius: 0 0 15px 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); 
+            border: 1px solid #ddd; margin-top: -5px;
+        }
+        .suggestion-item { padding: 14px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 0.95em; color: #333; line-height: 1.3; }
+
+        /* Mapa e Slider */
+        .map-wrapper { margin: 10px 20px; border-radius: 15px; overflow: hidden; border: 3px solid white; height: 260px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1; }
         #map { height: 100%; width: 100%; }
 
+        .distance-config { padding: 10px 20px; text-align: center; }
+        .radius-label-box { background: white; display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9em; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input[type="range"] { width: 100%; height: 10px; border-radius: 5px; background: #fff; outline: none; -webkit-appearance: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; border-radius: 50%; background: #4a90e2; cursor: pointer; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+
+        /* Botões */
         .controls { padding: 10px 20px 20px 20px; display: flex; flex-direction: column; gap: 15px; text-align: center; }
-        .btn-alarm { padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 1.1em; transition: 0.3s; }
-        .btn-success { background: #2ecc71; }
-        .btn-success:disabled { background: #95a5a6; cursor: not-allowed; }
-        .btn-danger { background: #e74c3c; }
-        .hidden { display: none; }
+        .btn-alarm { padding: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; color: white; font-size: 1.1em; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.2s; }
+        .btn-success { background: var(--success); }
+        .btn-success:disabled { background: #95a5a6; cursor: not-allowed; opacity: 0.7; }
+        .btn-danger { background: var(--danger); }
+        .hidden { display: none !important; }
+        #alarmStatus { font-weight: bold; color: #000080; font-size: 1em; margin-top: 5px; }
 
-        #alarmStatus { font-weight: bold; color: #333; }
-
-        footer { background: #333; color: white; padding: 15px; text-align: center; font-size: 0.8em; margin-top: auto; }
-        footer p { margin-bottom: 5px; }
-        .footer-brand { color: #ff3d00; font-weight: bold; }
+        footer { background-color: var(--header-yellow); padding: 15px; text-align: center; font-size: 0.85em; font-weight: bold; color: #8b4513; border-top: 1px solid rgba(0,0,0,0.05); margin-top: auto; }
     </style>
 </head>
 <body>
@@ -66,33 +85,43 @@
         <header class="top-bar">
             <div class="header-main">
                 <img src="icons/icon-192.png" alt="Logo" class="app-logo">
-                <div class="app-title-box"><h1>GPS - ALARME</h1></div>
+                <div class="app-title-box">
+                    <h1>GPS - ALARME</h1>
+                </div>
                 <div class="gps-status-box">
-                    <div id="statusIndicator" style="width:20px; height:20px; border-radius:50%; background:#333; border: 2px solid white;"></div>
+                    <div id="statusIndicator"></div>
                 </div>
             </div>
-            <button id="installBtn">📲 INSTALAR APLICATIVO</button>
+            <div class="app-subtitle">Durma tranquilo, acordaremos você no destino certo</div>
         </header>
 
         <div class="input-container">
-            <div class="search-box">
-                <span>📍</span>
-                <input type="text" id="destinationInput" placeholder="Para onde vamos?">
-                <div id="suggestions" class="suggestions" style="display:none;"></div>
+            <div id="searchWrapper" class="search-box">
+                <span class="pin-icon">📍</span>
+                <input type="text" id="destinationInput" placeholder="Digite o endereço ou locais" autocomplete="off">
             </div>
+            <div id="selectedDestCard" class="selected-dest-card hidden">
+                <span id="destLabel"></span>
+                <button class="clear-dest" onclick="clearSelectedDest()">✕</button>
+            </div>
+            <div id="suggestions" class="suggestions" style="display:none;"></div>
         </div>
 
         <div class="map-wrapper"><div id="map"></div></div>
 
+        <div class="distance-config">
+            <div class="radius-label-box">📏 Raio de aviso: <span id="radiusVal">100</span>m</div>
+            <input type="range" id="radiusSlider" min="100" max="5000" step="100" value="100">
+        </div>
+
         <div class="controls">
             <button id="activateAlarm" class="btn-alarm btn-success" disabled>🔔 ATIVAR ALARME</button>
             <button id="stopAlarm" class="btn-alarm btn-danger hidden">🔕 PARAR ALARME</button>
-            <div id="alarmStatus">Aguardando sinal...</div>
+            <div id="alarmStatus">GPS Conectado. Digite o destino.</div>
         </div>
 
         <footer>
-            <p>© 2026 <span class="footer-brand">Bidú Tech</span> - Fortaleza/CE</p>
-            <p>Sua segurança em primeiro lugar.</p>
+            <p>© Gps - Alarme - Todos os direitos reservados.</p>
         </footer>
     </div>
 
@@ -102,40 +131,45 @@
     <script>
         let map, userMarker, destination, routingControl, alarmActive = false;
         let userCoords = null;
-        let deferredPrompt;
         const alarmAudio = new Audio('audio/alarme.mp3');
         alarmAudio.loop = true;
 
+        const radiusSlider = document.getElementById('radiusSlider');
+        const radiusVal = document.getElementById('radiusVal');
+        const destinationInput = document.getElementById('destinationInput');
+        const suggestionsBox = document.getElementById('suggestions');
+
+        // Garantir que o raio comece em 100m
+        radiusSlider.value = 100;
+        radiusVal.textContent = 100;
+
+        radiusSlider.addEventListener('input', () => {
+            radiusVal.textContent = radiusSlider.value;
+            localStorage.setItem('alarmRadius', radiusSlider.value);
+            document.activeElement.blur(); 
+        });
+
         function activateGPS() {
-            const statusEl = document.getElementById('alarmStatus');
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     p => initApp(p.coords.latitude, p.coords.longitude),
-                    err => {
-                        console.error("Erro GPS:", err);
-                        statusEl.innerHTML = `<span style="color:red">Erro: Ative o GPS e recarregue.</span>`;
+                    err => { 
+                        document.getElementById('alarmStatus').innerHTML = `<span style="color:red">Erro GPS. Verifique permissões.</span>`; 
                     },
                     { enableHighAccuracy: true, timeout: 15000 }
                 );
-            } else {
-                statusEl.textContent = "GPS não suportado.";
             }
         }
 
         function initApp(lat, lng) {
             userCoords = { lat, lng };
             document.getElementById('statusIndicator').style.background = '#00ff40';
-            document.getElementById('alarmStatus').textContent = "GPS Conectado";
-            
             if (!map) {
                 map = L.map('map', { zoomControl: false }).setView([lat, lng], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
                 userMarker = L.marker([lat, lng]).addTo(map);
-                
-                // Tenta recuperar dados salvos após iniciar o mapa
                 loadSavedData();
             }
-            
             navigator.geolocation.watchPosition(updatePos, null, { enableHighAccuracy: true });
         }
 
@@ -145,68 +179,105 @@
             if(alarmActive) checkDist();
         }
 
-        document.getElementById('destinationInput').oninput = async (e) => {
-            if(e.target.value.length < 4) return;
-            try {
-                const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${e.target.value}&countrycodes=br&limit=5`);
-                const data = await res.json();
-                const sug = document.getElementById('suggestions');
-                sug.innerHTML = data.map(d => `<div class="suggestion-item" onclick="setDest(${d.lat}, ${d.lon}, '${d.display_name.replace(/'/g, "\\'")}')">${d.display_name}</div>`).join('');
-                sug.style.display = 'block';
-            } catch (err) { console.log(err); }
-        };
+        // MOTOR DE BUSCA COM IDENTIFICAÇÃO (Para evitar bloqueios)
+        let searchTimeout;
+        destinationInput.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const query = e.target.value;
+            
+            if (query.length < 3) { 
+                suggestionsBox.style.display = 'none'; 
+                return; 
+            }
+
+            searchTimeout = setTimeout(async () => {
+                let searchUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=10&accept-language=pt-BR`;
+                
+                if (userCoords) {
+                    searchUrl += `&lat=${userCoords.lat}&lon=${userCoords.lng}&bounded=0`;
+                }
+
+                try {
+                    const response = await fetch(searchUrl, {
+                        method: 'GET',
+                        headers: { 'User-Agent': 'GpsAlarmeApp/1.0' }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data && data.length > 0) {
+                            suggestionsBox.innerHTML = data.map(d => {
+                                const displayName = d.display_name.replace(/'/g, "\\'");
+                                return `<div class="suggestion-item" onclick="setDest(${d.lat}, ${d.lon}, '${displayName}')">${d.display_name}</div>`;
+                            }).join('');
+                            suggestionsBox.style.display = 'block';
+                        } else {
+                            suggestionsBox.style.display = 'none';
+                        }
+                    }
+                } catch (err) {
+                    console.error("Erro na busca:", err);
+                }
+            }, 600);
+        });
 
         window.setDest = (lat, lon, name) => {
             destination = { lat, lng: lon, name: name };
-            document.getElementById('suggestions').style.display = 'none';
+            suggestionsBox.style.display = 'none';
+            
+            document.getElementById('searchWrapper').classList.add('hidden');
+            document.getElementById('selectedDestCard').classList.remove('hidden');
+            document.getElementById('destLabel').textContent = name;
             document.getElementById('activateAlarm').disabled = false;
-            document.getElementById('destinationInput').value = name;
-
-            // Salva no LocalStorage
+            
             localStorage.setItem('savedDest', JSON.stringify(destination));
 
             if (routingControl) map.removeControl(routingControl);
-            
             routingControl = L.Routing.control({
                 waypoints: [L.latLng(userCoords.lat, userCoords.lng), L.latLng(lat, lon)],
                 router: L.Routing.osrmv1({ serviceUrl: `https://router.project-osrm.org/route/v1` }),
                 createMarker: () => null,
                 lineOptions: { styles: [{ color: '#4a90e2', weight: 6 }] },
-                addWaypoints: false 
+                addWaypoints: false,
+                show: false
             }).addTo(map);
+            map.flyTo([lat, lon], 15);
+        };
+
+        window.clearSelectedDest = () => {
+            destination = null;
+            if (routingControl) map.removeControl(routingControl);
+            document.getElementById('selectedDestCard').classList.add('hidden');
+            document.getElementById('searchWrapper').classList.remove('hidden');
+            document.getElementById('activateAlarm').disabled = true;
+            destinationInput.value = "";
+            localStorage.removeItem('savedDest');
+            document.getElementById('alarmStatus').textContent = "Busque um novo destino.";
         };
 
         function loadSavedData() {
             const saved = localStorage.getItem('savedDest');
-            const savedActive = localStorage.getItem('alarmActive');
-            
             if (saved) {
                 const data = JSON.parse(saved);
-                // Pequeno delay para garantir que as coordenadas do usuário carregaram
-                setTimeout(() => {
-                    if(userCoords) setDest(data.lat, data.lng, data.name);
-                }, 1000);
-            }
-
-            if (savedActive === 'true') {
-                setTimeout(() => document.getElementById('activateAlarm').click(), 1500);
+                setTimeout(() => { if(userCoords) setDest(data.lat, data.lng, data.name); }, 1000);
             }
         }
 
         function checkDist() {
             if(!destination || !userCoords) return;
             const d = map.distance([userCoords.lat, userCoords.lng], [destination.lat, destination.lng]);
-            if (d <= 500) {
-                alarmAudio.play().catch(e => console.log("Erro áudio"));
+            const radius = parseInt(radiusSlider.value);
+            if (d <= radius) {
+                alarmAudio.play().catch(() => {});
                 document.getElementById('alarmStatus').innerHTML = "<b style='color:red'>VOCÊ CHEGOU!</b>";
+                if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
             } else {
-                document.getElementById('alarmStatus').textContent = `Distância: ${Math.round(d)}m`;
+                document.getElementById('alarmStatus').textContent = `Faltam: ${Math.round(d)}m`;
             }
         }
 
         document.getElementById('activateAlarm').onclick = () => {
             alarmActive = true;
-            localStorage.setItem('alarmActive', 'true');
             document.getElementById('activateAlarm').classList.add('hidden');
             document.getElementById('stopAlarm').classList.remove('hidden');
             alarmAudio.play().then(() => { alarmAudio.pause(); alarmAudio.currentTime = 0; });
@@ -214,40 +285,29 @@
 
         document.getElementById('stopAlarm').onclick = () => {
             alarmActive = false;
-            // Limpa o Local Storage ao desativar
-            localStorage.removeItem('savedDest');
-            localStorage.removeItem('alarmActive');
-            
-            alarmAudio.pause();
-            alarmAudio.currentTime = 0;
+            alarmAudio.pause(); alarmAudio.currentTime = 0;
             document.getElementById('activateAlarm').classList.remove('hidden');
             document.getElementById('stopAlarm').classList.add('hidden');
-            document.getElementById('destinationInput').value = "";
-            document.getElementById('activateAlarm').disabled = true;
-            if (routingControl) map.removeControl(routingControl);
-            document.getElementById('alarmStatus').textContent = "GPS Conectado";
-        };
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            document.getElementById('installBtn').style.display = 'block';
-        });
-
-        document.getElementById('installBtn').onclick = async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') document.getElementById('installBtn').style.display = 'none';
-                deferredPrompt = null;
-            }
+            document.getElementById('alarmStatus').textContent = "Alarme parado.";
         };
 
         window.onload = activateGPS;
-
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(e => console.log("Erro SW:", e));
-        }
+         
+         // Registro do Service Worker para PWA e funcionamento offline
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        // O caminho './sw.js' assume que o arquivo está na raiz do repositório
+        navigator.serviceWorker.register('./sw.js')
+            .then(registration => {
+                console.log('Service Worker registrado com sucesso:', registration.scope);
+            })
+            .catch(error => {
+                console.log('Falha ao registrar o Service Worker:', error);
+            });
+    });
+}
+                       
+        
     </script>
 </body>
 </html>
